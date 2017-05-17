@@ -16,7 +16,7 @@ function lstm()
     end
 
     %% input variables
-    alpha      = 0.1;
+    alpha      = 0.05;
     input_dim  = 2;
     hidden_dim = 32;
     output_dim = 1;
@@ -56,7 +56,7 @@ function lstm()
     % (Sometimes you can use softmax for equation (7))
 
     %% train
-    iter = 99999; % training iterations
+    iter = 999999; % training iterations
     for j = 1:iter
         % generate a simple addition problem (a + b = c)
         a_int = randi(round(largest_number/2));   % int version
@@ -261,8 +261,8 @@ function lstm()
             d = bin2dec(num2str(d));
             pred = sprintf('Pred:%s\n',dec2bin(d,8)); fprintf(pred);
             Tru = sprintf('True:%s\n', num2str(c)); fprintf(Tru);
-            out = 0;
-            sep = sprintf('-------------\n'); fprintf(sep);
+%             out = 0;
+%             sep = sprintf('-------------\n'); fprintf(sep);
         end
     end
 end
