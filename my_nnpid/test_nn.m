@@ -10,14 +10,14 @@ function [w_o,b_o,last_gradient] = test_nn()
     input_layer = rands(1,2)-0.5;
     t = rands(1,2);
     eval = input_layer*rands(2,3);
-    eval = max(0,eval);
-    eval = min(1,eval);
+    %eval = max(0,eval);
+    %eval = min(1,eval);
     for k=1:1:round_time
-        h_layer = neural_networks_forward(input_layer,w_i,b_i,@sigmoid);
+        h_layer = neural_networks_forward(input_layer,w_i,b_i,@relu);
         out = neural_networks_forward(h_layer,w_o,b_o,@relu);
         gradient = out-eval;
         [w_o,b_o,last_gradient] = neural_networks_back(learning_rate,h_layer,out,w_o,b_o,gradient,@relu_gradient);
-        [w_i,b_i,last_gradient] = neural_networks_back(learning_rate,input_layer,h_layer,w_i,b_i,last_gradient,@sigmoid_gradient);
+        [w_i,b_i,last_gradient] = neural_networks_back(learning_rate,input_layer,h_layer,w_i,b_i,last_gradient,@relu_gradient);
         gradient
     end
 end

@@ -89,10 +89,10 @@ function [weights_new,bias_new] = neural_networks_back(learning_rate,input_layer
     
 end
 function output = sigmoid(x)
-output =1./(1+exp(-x));
+    output =1./(1+exp(-x));
 end
 function gradient = sigmoid_gradient(output)
-gradient =output.*(1-output);
+    gradient =output.*(1-output);
 end
 function output = relu(x)
     output = x;
