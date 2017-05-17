@@ -12,14 +12,14 @@ function my_nn_pid()
     gradient = 0;
     layer_2 = zeros(1,3);
     input_layer = zeros(1,2);
-    pid_con = [45,0.5,1000];%pid 参数
+    pid_con = [50,0.5,2000];%pid 参数
     pid_m = zeros(1,3);%pid 乘积量
     singal_in = zeros(1,round_time);%信号输入
     
     pid_out = zeros(1,round_time);%pid输出
     singal_out = zeros(1,round_time);%信号输出
     error = zeros(1,round_time);%信号输入
-    sys=tf(2.6126,[1,3.201,2.7225]);  %建立被控对象传递函数
+    sys=tf(1,[1,0.5,0]);  %建立被控对象传递函数
     dsys=c2d(sys,ts,'z');   %把传递函数离散化
     [num,den]=tfdata(dsys,'v');  %离散化后提取分子、分母
     
@@ -39,15 +39,14 @@ function my_nn_pid()
         end
         if k > 3
             error(k) = singal_in(k)-singal_out(k-1);
-            layer_out_gradient = (singal_out(k-1)-singal_in(k-1));
-            layer_out_gradient = layer_out_gradient.*pid_m;
-            gradient = gradient + relu_gradient(layer_2).*layer_out_gradient;
-            if mod(k,5) == 0
-                gradient
-                [w_2,b_2] = neural_networks_back(learning_rate,input_layer,w_2,b_2,gradient);
-                gradient = 0;
-            end
-            input_layer = [abs(error(k)),singal_in(k)];
+            %layer_out_gradient = (singal_out(k-1)-singal_in(k-1));
+            %layer_out_gradient = layer_out_gradient.*pid_m;
+            layer_out_gradient = layer_2-pid_con;
+            gradient = relu_gradient(layer_2).*layer_out_gradient;
+            [w_2,b_2] = neural_networks_back(learning_rate,input_layer,w_2,b_2,gradient);
+            input_layer = [1,1];
+            %input_layer = [abs(error(k)),singal_in(k)];
+            
             layer_2 = neural_networks_forward(input_layer,w_2,b_2,@relu);
             %pid_con = layer_2;
             pid_m=pid_param(error,k);
@@ -83,7 +82,6 @@ function out = neural_networks_forward(input,weights,bias,active_func)
 end
 function [weights_new,bias_new] = neural_networks_back(learning_rate,input_layer,weights,bias,gradient)
     bias_new = bias - learning_rate.*gradient;
-    bias_new
     x_t = repmat(input_layer,3,1)';
     gradient_t = repmat(gradient,3,1);
     weights_new = zeros(2,3);
