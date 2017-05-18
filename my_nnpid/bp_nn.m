@@ -1,4 +1,4 @@
-classdef bp_nn
+classdef bp_nn< handle
     properties
         %学习率
         learning_rate =  0.1;
@@ -14,6 +14,8 @@ classdef bp_nn
         b_i;
         w_o;
         b_o;
+        output;
+        h_layer_1;
     end
     methods
         %% 构造函数
@@ -21,11 +23,23 @@ classdef bp_nn
             obj.input_dim = input_dim;
             obj.h1_dim = h1_dim;
             obj.output_dim = output_dim;
-            w_i = rands(input_dim,h1_dim);
-            b_i = rands(1,h1_dim);
-            w_o = rands(h1_dim,output_dim);
-            b_o = rands(1,output_dim);
+            obj.w_i = rands(input_dim,h1_dim);
+            obj.b_i = rands(1,h1_dim);
+            obj.w_o = rands(h1_dim,output_dim);
+            obj.b_o = rands(1,output_dim);
+            obj.h_layer_1 = zeros(1,h1_dim);
         end
+        %% 训练
+        function train(obj,input,eval)
+                obj.h_layer_1 = obj.neural_networks_forward(input,obj.w_i,obj.b_i,@obj.lrelu);
+                obj.output = obj.neural_networks_forward(obj.h_layer_1,obj.w_o,obj.b_o,@obj.lrelu);
+                gradient = obj.output-eval;
+                [obj.w_o,obj.b_o,last_gradient] = obj.neural_networks_back(obj.learning_rate,obj.h_layer_1,obj.output,obj.w_o,obj.b_o,gradient,@bp_nn.lrelu_gradient);
+                [obj.w_i,obj.b_i,~] = obj.neural_networks_back(obj.learning_rate,input,obj.h_layer_1,obj.w_i,obj.b_i,last_gradient,@obj.lrelu_gradient);
+                gradient
+        end
+    end
+    methods(Static)
         %% 前向传播
         function out = neural_networks_forward(input,weights,bias,active_func)
             out_unactive = input*weights+bias;
@@ -75,4 +89,5 @@ classdef bp_nn
             gradient =output.*(1-output);
         end
     end
+        
 end
