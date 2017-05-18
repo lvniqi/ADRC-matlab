@@ -31,21 +31,28 @@ classdef bp_nn< handle
         end
         %% 训练
         function train(obj,input,eval)
-                obj.h_layer_1 = obj.neural_networks_forward(input,obj.w_i,obj.b_i,@obj.lrelu);
-                obj.output = obj.neural_networks_forward(obj.h_layer_1,obj.w_o,obj.b_o,@obj.lrelu);
+                obj.forward(input);
                 gradient = obj.output-eval;
-                [obj.w_o,obj.b_o,last_gradient] = obj.neural_networks_back(obj.learning_rate,obj.h_layer_1,obj.output,obj.w_o,obj.b_o,gradient,@bp_nn.lrelu_gradient);
-                [obj.w_i,obj.b_i,~] = obj.neural_networks_back(obj.learning_rate,input,obj.h_layer_1,obj.w_i,obj.b_i,last_gradient,@obj.lrelu_gradient);
+                obj.backward(input,gradient);
                 gradient
+        end
+        %% 前向传播
+        function forward(obj,input)
+            obj.h_layer_1 = obj.neural_networks_forward(input,obj.w_i,obj.b_i,@obj.lrelu);
+            obj.output = obj.neural_networks_forward(obj.h_layer_1,obj.w_o,obj.b_o,@obj.lrelu);
+        end
+        function backward(obj,input,gradient)
+            [obj.w_o,obj.b_o,last_gradient] = obj.neural_networks_back(obj.learning_rate,obj.h_layer_1,obj.output,obj.w_o,obj.b_o,gradient,@bp_nn.lrelu_gradient);
+            [obj.w_i,obj.b_i,~] = obj.neural_networks_back(obj.learning_rate,input,obj.h_layer_1,obj.w_i,obj.b_i,last_gradient,@obj.lrelu_gradient);
         end
     end
     methods(Static)
-        %% 前向传播
+        %% 前向传播单个层次
         function out = neural_networks_forward(input,weights,bias,active_func)
             out_unactive = input*weights+bias;
             out = active_func(out_unactive);
         end
-        %% 反向求导
+        %% 反向求导单个层次
         function [weights_new,bias_new,last_gradient] = neural_networks_back(learning_rate,input_layer,out,weights,bias,gradient,active_gradient_func)
             %激活函数求导
             gradient_new = active_gradient_func(out).*gradient;
