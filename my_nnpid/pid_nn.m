@@ -1,10 +1,15 @@
 classdef pid_nn<bp_nn
+    properties
+        %pidè¾“å‡º
+        pid_output = zeros(1,3);
+    end
+    
     methods
-        %% ¹¹Ôìº¯Êı
+        %% æ„é€ å‡½æ•°
         function obj=pid_nn(input_dim,h1_dim,output_dim)
             obj = obj@bp_nn(input_dim,h1_dim,output_dim);
         end
-        %% Ç°Ïò
+        %% å‰å‘
         
     end
 end
