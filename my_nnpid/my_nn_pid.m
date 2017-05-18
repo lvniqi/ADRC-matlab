@@ -62,51 +62,18 @@ function my_nn_pid()
     %plot(times,a,'r');
     %c = neural_networks();
 end
+
 function pid_m = pid_param(error,k)
     pid_m = zeros(1,3);
     pid_m(1)=error(k)-error(k-1);
     pid_m(2)=error(k);
     pid_m(3)=error(k)-2*error(k-1)+error(k-2);
 end
+
 function out = pid_control(pid_con,pid_m)
     out = pid_con*pid_m';
 end
 
 function out=i_func_1(num,den,out_all,in_all,k)
     out = -den(2)*out_all(k-1)-den(3)*out_all(k-2)+ num(2)*in_all(k-1)+num(3)*in_all(k-2);
-end
-
-function out = neural_networks_forward(input,weights,bias,active_func)
-    out_unactive = input*weights+bias;
-    out = active_func(out_unactive);
-end
-function [weights_new,bias_new] = neural_networks_back(learning_rate,input_layer,weights,bias,gradient)
-    bias_new = bias - learning_rate.*gradient;
-    x_t = repmat(input_layer,3,1)';
-    gradient_t = repmat(gradient,3,1);
-    weights_new = zeros(2,3);
-    %weights_new = weights - learning_rate*gradient_t*x_t;
-    
-end
-function output = sigmoid(x)
-    output =1./(1+exp(-x));
-end
-function gradient = sigmoid_gradient(output)
-    gradient =output.*(1-output);
-end
-function output = relu(x)
-    output = x;
-     for k=1:1:length(output)
-         if output(k) < 0
-             output(k)=0;
-         end
-     end
-end
-function gradient = relu_gradient(output)
-    gradient = ones(1,length(output));
-      for k=1:1:length(output)
-          if output(k)<=0
-              gradient(k) = 0;
-          end
-      end
 end
