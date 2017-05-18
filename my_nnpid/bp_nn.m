@@ -23,24 +23,26 @@ classdef bp_nn< handle
             obj.input_dim = input_dim;
             obj.h1_dim = h1_dim;
             obj.output_dim = output_dim;
-            obj.w_i = rands(input_dim,h1_dim);
-            obj.b_i = rands(1,h1_dim);
-            obj.w_o = rands(h1_dim,output_dim);
-            obj.b_o = rands(1,output_dim);
+            obj.w_i = rand(input_dim,h1_dim)-0.5;
+            obj.b_i = rand(1,h1_dim)-0.5;
+            obj.w_o = rand(h1_dim,output_dim)-0.5;
+            obj.b_o = rand(1,output_dim)-0.5;
             obj.h_layer_1 = zeros(1,h1_dim);
         end
         %% 训练
         function train(obj,input,eval)
                 obj.forward(input);
                 gradient = obj.output-eval;
-                obj.backward(input,gradient);
                 gradient
+                obj.backward(input,gradient);
+                
         end
         %% 前向传播
         function forward(obj,input)
             obj.h_layer_1 = obj.neural_networks_forward(input,obj.w_i,obj.b_i,@obj.lrelu);
             obj.output = obj.neural_networks_forward(obj.h_layer_1,obj.w_o,obj.b_o,@obj.lrelu);
         end
+        %% 反向传播
         function backward(obj,input,gradient)
             [obj.w_o,obj.b_o,last_gradient] = obj.neural_networks_back(obj.learning_rate,obj.h_layer_1,obj.output,obj.w_o,obj.b_o,gradient,@bp_nn.lrelu_gradient);
             [obj.w_i,obj.b_i,~] = obj.neural_networks_back(obj.learning_rate,input,obj.h_layer_1,obj.w_i,obj.b_i,last_gradient,@obj.lrelu_gradient);
@@ -54,6 +56,11 @@ classdef bp_nn< handle
         end
         %% 反向求导单个层次
         function [weights_new,bias_new,last_gradient] = neural_networks_back(learning_rate,input_layer,out,weights,bias,gradient,active_gradient_func)
+            %防止 梯度爆炸？
+            g_max = max(abs(gradient));
+            if g_max>5
+                gradient = gradient/g_max*5;
+            end
             %激活函数求导
             gradient_new = active_gradient_func(out).*gradient;
             %更新偏置
@@ -82,7 +89,7 @@ classdef bp_nn< handle
         function gradient = lrelu_gradient(output)
             gradient = ones(1,length(output));
             for k=1:1:length(output)
-                if output(k)<=0
+                if output(k)<0
                     gradient(k) = 0.1;
                 end
             end
